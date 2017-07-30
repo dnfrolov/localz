@@ -1,0 +1,11 @@
+version: '2'
+services:
+  mq:
+    ports:
+      - 5672:5672
+  brandy:
+    ports:
+      - 3306:3306
+  cache:
+    ports:
+      - 6379:6379

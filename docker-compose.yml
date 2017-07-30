@@ -1,0 +1,34 @@
+version: '2'
+services:
+  mq:
+    image: rabbitmq
+  cache:
+    image: redis
+  brandy:
+    build:
+      context: ./.brandy/
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-integration-tests
+    links:
+      - mq
+      - cache
+      - brandy
+    depends_on:
+      - mq
+      - cache
+      - brandy
+    command: ./docker-wait.sh npm start
+    environment:
+      - ORDERS_FILE_URL=http://localz.au.com/orders.csv
+      - DELIMITER=,
+      - REDIS_URL=redis://cache:6379
+      - REDIS_AUTH=
+      - REDIS_NAMESPACE=localz-test
+      - MYSQL_BRANDY=mysql://root:@brandy/brandy
+      - RABBIT_MQ_URL=amqp://mq:5672
+      - ORDERS_QUEUE=orders
+      - ORDERS_QUEUE_PREFETCH=5
